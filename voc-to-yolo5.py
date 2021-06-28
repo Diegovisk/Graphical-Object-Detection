@@ -5,13 +5,21 @@ import xml.etree.ElementTree as ET
 from os import listdir, getcwd
 from os.path import join
 
-dirs = ['train', 'val']
-classes = ['person', 'car']
+# This was taken from: https://gist.github.com/Amir22010/a99f18ca19112bc7db0872a36a03a1ec
+# And adapted to our problem
+
+dirs = [
+    'formatted_data/training', 
+    'formatted_data/validation',
+    'formatted_data/test'
+]
+
+classes = ['table', 'figure', 'natural_image', 'logo', 'signature']
 
 
 def getImagesInDir(dir_path):
     image_list = []
-    for filename in glob.glob(dir_path + '/*.jpg'):
+    for filename in glob.glob(dir_path + '_images/*.jpg'):
         image_list.append(filename)
 
     return image_list
@@ -35,7 +43,7 @@ def convert_annotation(dir_path, output_path, image_path):
     basename = os.path.basename(image_path)
     basename_no_ext = os.path.splitext(basename)[0]
 
-    in_file = open(dir_path + '/' + basename_no_ext + '.xml')
+    in_file = open(dir_path + '_xml/' + basename_no_ext + '.xml')
     out_file = open(output_path + basename_no_ext + '.txt', 'w')
     tree = ET.parse(in_file)
     root = tree.getroot()
