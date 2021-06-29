@@ -4,6 +4,7 @@ import pickle
 import xml.etree.ElementTree as ET
 from os import listdir, getcwd
 from os.path import join
+from shutil import copyfile
 
 # This was taken from: https://gist.github.com/Amir22010/a99f18ca19112bc7db0872a36a03a1ec
 # And adapted to our problem
@@ -114,4 +115,12 @@ for dir_path in raw_data:
 
     list_file.close()
 
-    print("Finished processing: " + dir_path["in"])
+    print("Finished processing labels: " + dir_path["in"])
+
+    # Copy images (and do any formatting, if needed)
+    for image_path in image_paths:
+        basename = os.path.basename(image_path)
+        img_destination = output_path + "/images/" + basename
+        if not os.path.isfile(img_destination):
+            copyfile(image_path, img_destination);
+
