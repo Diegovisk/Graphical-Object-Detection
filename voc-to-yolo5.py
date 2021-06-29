@@ -8,10 +8,29 @@ from os.path import join
 # This was taken from: https://gist.github.com/Amir22010/a99f18ca19112bc7db0872a36a03a1ec
 # And adapted to our problem
 
-dirs = [
-    'formatted_data/training', 
-    'formatted_data/validation',
-    'formatted_data/test'
+'''
+
+In: gets the folders with the given prefix. The suffix shall be _images, _xml, according to the dataset.
+
+Example: raw_data/training -> ["raw_data/training_images", "raw_data_xml"] # these 2 derivated paths need to exist.
+
+Out: don't even worry, it will do the job.
+ 
+'''
+
+raw_data = [
+    {
+        "in": 'raw_data/training',
+        "out": "formatted_data/train"
+    },
+    {
+        "in": 'raw_data/validation',
+        "out": "formatted_data/validate"
+    },
+    {
+        "in": 'raw_data/test',
+        "out": "formatted_data/test"
+    }
 ]
 
 classes = ['table', 'figure', 'natural_image', 'logo', 'signature']
@@ -44,7 +63,7 @@ def convert_annotation(dir_path, output_path, image_path):
     basename_no_ext = os.path.splitext(basename)[0]
 
     in_file = open(dir_path + '_xml/' + basename_no_ext + '.xml')
-    out_file = open(output_path + basename_no_ext + '.txt', 'w')
+    out_file = open(output_path + "/labels/" + basename_no_ext + '.txt', 'w')
     tree = ET.parse(in_file)
     root = tree.getroot()
     size = root.find('size')
@@ -67,19 +86,32 @@ def convert_annotation(dir_path, output_path, image_path):
 
 cwd = getcwd()
 
-for dir_path in dirs:
-    full_dir_path = cwd + '/' + dir_path
-    output_path = full_dir_path + '/yolo/'
+for dir_path in raw_data:
+    full_dir_path = cwd + '/' + dir_path["in"]
+    output_path = cwd + '/' + dir_path["out"]
 
+    # Base output
     if not os.path.exists(output_path):
         os.makedirs(output_path)
 
+    # output/images
+    if not os.path.exists(output_path + "/images"):
+        os.makedirs(output_path + "/images")
+
+    # output/labels
+    if not os.path.exists(output_path + "/labels"):
+        os.makedirs(output_path + "/labels")
+
     image_paths = getImagesInDir(full_dir_path)
-    list_file = open(full_dir_path + '.txt', 'w')
+    list_file = open(output_path + '.txt', 'w')
 
     for image_path in image_paths:
-        list_file.write(image_path + '\n')
+        basename = os.path.basename(image_path)
+        # basename_no_ext = os.path.splitext(basename)[0]
+
+        list_file.write(output_path + "/images/" + basename + '\n')
         convert_annotation(full_dir_path, output_path, image_path)
+
     list_file.close()
 
-    print("Finished processing: " + dir_path)
+    print("Finished processing: " + dir_path["in"])
